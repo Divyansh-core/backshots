@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>🎤 Listening... make noise 😈</h2>
+
+  <script>
+    window.onload = async function () {
+      const sound1 = new Audio("/static/effect1.mp3");
+      const sound2 = new Audio("/static/effect2.mp3");
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        const audioContext = new AudioContext();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+
+        source.connect(analyser);
+
+        const dataArray = new Uint8Array(analyser.fftSize);
+
+        async function detect() {
+          analyser.getByteTimeDomainData(dataArray);
+
+          let max = 0;
+          for (let i = 0; i < dataArray.length; i++) {
+            let val = Math.abs(dataArray[i] - 128);
+            if (val > max) max = val;
+          }
+
+          const res = await fetch("/detect", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ loudness: max })
+          });
+
+          const data = await res.json();
+
+          if (data.play === "sound1") sound1.play();
+          if (data.play === "sound2") sound2.play();
+
+          requestAnimationFrame(detect);
+        }
+
+        detect();
+
+      } catch (err) {
+        console.log("Mic denied:", err);
+      }
+    };
+  </script>
+</body>
+</html>
