@@ -31,7 +31,7 @@ async def detect(request: Request):
     loudness = data.get("loudness", 0)
     result = None
 
-    if loudness > 50 and (time.time() - last_trigger) > 1.2:
+    if loudness > 40 and (time.time() - last_trigger) > 1.2:
         last_trigger = time.time()
         count += 1
         # Random logic
