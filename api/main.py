@@ -18,7 +18,11 @@ last_trigger = 0
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    # This is the exact fix for the "unhashable type: dict" error
+    return templates.TemplateResponse(
+        request=request, 
+        name="index.html"
+    )
 
 @app.post("/detect")
 async def detect(request: Request):
