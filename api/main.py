@@ -8,9 +8,10 @@ import time
 
 app = FastAPI()
 
-# Vercel looks for folders relative to the root
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+app.mount("/static", StaticFiles(directory=os.path.join(base_dir, "static")), name="static")
+templates = Jinja2Templates(directory=os.path.join(base_dir, "templates"))
 
 count = 0
 last_trigger = 0
